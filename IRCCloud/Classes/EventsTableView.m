@@ -25,14 +25,14 @@ int __timestampWidth;
 
 @interface EventsTableCell : UITableViewCell {
     UILabel *_timestamp;
-    TTTAttributedLabel *_message;
+    UITextView *_message;
     int _type;
     UIView *_socketClosedBar;
     UIImageView *_accessory;
 }
 @property int type;
 @property (readonly) UILabel *timestamp;
-@property (readonly) TTTAttributedLabel *message;
+@property (readonly) UITextView *message;
 @property (readonly) UIImageView *accessory;
 @end
 
@@ -51,13 +51,11 @@ int __timestampWidth;
         _timestamp.textColor = [UIColor timestampColor];
         [self.contentView addSubview:_timestamp];
 
-        _message = [[TTTAttributedLabel alloc] init];
-        _message.verticalAlignment = TTTAttributedLabelVerticalAlignmentTop;
-        _message.numberOfLines = 0;
-        _message.lineBreakMode = NSLineBreakByWordWrapping;
+        _message = [[UITextView alloc] init];
+        _message.editable = NO;
+        _message.textContainerInset = UIEdgeInsetsZero;
         _message.backgroundColor = [UIColor clearColor];
         _message.textColor = [UIColor blackColor];
-        _message.dataDetectorTypes = UIDataDetectorTypeNone;
         [self.contentView addSubview:_message];
         
         _socketClosedBar = [[UIView alloc] initWithFrame:CGRectZero];
@@ -145,7 +143,7 @@ int __timestampWidth;
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    CGFloat lineSpacing = 6;
+    /*CGFloat lineSpacing = 6;
     CTLineBreakMode lineBreakMode = kCTLineBreakByWordWrapping;
     CTParagraphStyleSetting paragraphStyles[2] = {
         {.spec = kCTParagraphStyleSpecifierLineSpacing, .valueSize = sizeof(CGFloat), .value = &lineSpacing},
@@ -161,7 +159,7 @@ int __timestampWidth;
     CFRelease(paragraphStyle);
     
     [mutableLinkAttributes setObject:(id)[[UIColor lightLinkColor] CGColor] forKey:(NSString*)kCTForegroundColorAttributeName];
-    _lightLinkAttributes = [NSDictionary dictionaryWithDictionary:mutableLinkAttributes];
+    _lightLinkAttributes = [NSDictionary dictionaryWithDictionary:mutableLinkAttributes];*/
     
     self.tableView.scrollsToTop = NO;
     UILongPressGestureRecognizer *lp = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(_longPress:)];
@@ -1261,8 +1259,8 @@ int __timestampWidth;
     cell.contentView.backgroundColor = e.bgColor;
     cell.timestamp.font = [ColorFormatter timestampFont];
     cell.message.font = [ColorFormatter timestampFont];
-    cell.message.delegate = self;
-    cell.message.text = e.formatted;
+    //cell.message.delegate = self;
+    cell.message.attributedText = e.formatted;
     if(e.from.length && e.msg.length) {
         cell.accessibilityLabel = [NSString stringWithFormat:@"Message from %@ at %@", e.from, e.timestamp];
         cell.accessibilityValue = [[ColorFormatter format:e.msg defaultColor:[UIColor blackColor] mono:NO linkify:NO server:nil links:nil] string];
@@ -1290,7 +1288,7 @@ int __timestampWidth;
         cell.accessory.hidden = YES;
     }
     if(e.links.count) {
-        if(e.pending || [e.color isEqual:[UIColor timestampColor]])
+        /*if(e.pending || [e.color isEqual:[UIColor timestampColor]])
             cell.message.linkAttributes = _lightLinkAttributes;
         else
             cell.message.linkAttributes = _linkAttributes;
@@ -1311,7 +1309,7 @@ int __timestampWidth;
         }
         @catch (NSException *exception) {
             NSLog(@"An exception occured while setting the links, the table is probably being reloaded: %@", exception);
-        }
+        }*/
     }
     if(e.rowType == ROW_LASTSEENEID)
         cell.timestamp.text = @"New Messages";
@@ -1554,7 +1552,7 @@ int __timestampWidth;
         if(indexPath) {
             if(indexPath.row < _data.count) {
                 EventsTableCell *c = (EventsTableCell *)[self.tableView cellForRowAtIndexPath:indexPath];
-                NSURL *url = [c.message linkAtPoint:[gestureRecognizer locationInView:c.message]].URL;
+                /*NSURL *url = [c.message linkAtPoint:[gestureRecognizer locationInView:c.message]].URL;
                 if(url) {
                     if([url.scheme hasPrefix:@"irc"] && [url.host intValue] > 0 && url.path && url.path.length > 1) {
                         Server *s = [[ServersDataSource sharedInstance] getServer:[url.host intValue]];
@@ -1566,7 +1564,7 @@ int __timestampWidth;
                         }
                     }
                 }
-                [_delegate rowLongPressed:[_data objectAtIndex:indexPath.row] rect:[self.tableView rectForRowAtIndexPath:indexPath] link:url.absoluteString];
+                [_delegate rowLongPressed:[_data objectAtIndex:indexPath.row] rect:[self.tableView rectForRowAtIndexPath:indexPath] link:url.absoluteString];*/
             }
         }
     }
